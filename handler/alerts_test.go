@@ -128,3 +128,60 @@ func TestUpdateAlert(t *testing.T) {
 			Status(http.StatusBadRequest)
 	})
 }
+
+func TestDeleteAlert(t *testing.T) {
+	t.Run("Valid", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		token := h.Controller.JWT.New(u.Claims())
+		s := tables.RandomStation(u)
+		assert.Nil(tt, h.Controller.DB.Create(s).Error)
+		sensor := s.Sensors[0]
+		a := tables.RandomAlert(u, &sensor)
+		assert.Nil(tt, h.Controller.DB.Create(a).Error)
+		expect.
+			DELETE(AlertRoute+"/"+a.UUID.String()).
+			WithHeader("Authorization", headers.Authorization(token)).
+			Expect().
+			Status(http.StatusOK)
+		var alert tables.Alert
+		assert.NotNil(tt, h.Controller.DB.Where("uuid = ?", a.UUID).First(&alert).Error)
+	})
+	t.Run("Other user alert", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		u2 := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u2).Error)
+		token := h.Controller.JWT.New(u.Claims())
+		s := tables.RandomStation(u)
+		assert.Nil(tt, h.Controller.DB.Create(s).Error)
+		sensor := s.Sensors[0]
+		a := tables.RandomAlert(u2, &sensor)
+		assert.Nil(tt, h.Controller.DB.Create(a).Error)
+		expect.
+			DELETE(AlertRoute+"/"+a.UUID.String()).
+			WithHeader("Authorization", headers.Authorization(token)).
+			Expect().
+			Status(http.StatusUnauthorized)
+	})
+	t.Run("Invalid UUID", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		token := h.Controller.JWT.New(u.Claims())
+		expect.
+			DELETE(AlertRoute+"/INVALID").
+			WithHeader("Authorization", headers.Authorization(token)).
+			WithHeader("Content-Type", "application/json").
+			Expect().
+			Status(http.StatusBadRequest)
+	})
+}

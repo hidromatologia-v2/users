@@ -23,6 +23,7 @@ const (
 	AccountRoute                = "/account"
 	EchoRoute                   = "/echo"
 	AlertRoute                  = "/alert"
+	AlertRouteWithParam         = AlertRoute + "/:" + UUIDParam
 )
 
 type Response struct {

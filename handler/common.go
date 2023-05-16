@@ -14,6 +14,7 @@ const (
 	QueryStationRoute           = "/station"
 	QueryStationRouteWithParams = QueryStationRoute + "/:" + UUIDParam
 	SearchStationsRoute         = "/search/stations"
+	HistoricalRoute             = "/historical"
 )
 
 type Response struct {

@@ -29,6 +29,7 @@ func New(c *models.Controller, msgProducer *memphis.Producer) *Handler {
 	api.POST(LoginRoute, h.Login)
 	api.GET(QueryStationRouteWithParams, h.QueryStation)
 	api.POST(SearchStationsRoute, h.SearchStations)
+	api.POST(HistoricalRoute, h.Historical)
 	// -- Authenticate
 	// -- Stations
 	return h

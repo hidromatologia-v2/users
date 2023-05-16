@@ -40,3 +40,17 @@ func (h *Handler) SearchStations(ctx *gin.Context) {
 	}
 	ctx.AbortWithStatusJSON(http.StatusInternalServerError, Response{Message: sErr.Error()})
 }
+
+func (h *Handler) Historical(ctx *gin.Context) {
+	var hFilter models.HistoricalFilter
+	bErr := ctx.Bind(&hFilter)
+	if bErr != nil {
+		return
+	}
+	registries, hErr := h.Controller.Historical(&hFilter)
+	if hErr == nil {
+		ctx.JSON(http.StatusOK, registries)
+		return
+	}
+	ctx.AbortWithStatusJSON(http.StatusInternalServerError, Response{Message: hErr.Error()})
+}

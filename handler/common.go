@@ -5,8 +5,14 @@ const (
 )
 
 const (
-	RegisterRoute = "/register"
-	LoginRoute    = "/login"
+	UUIDParam = "uuid"
+)
+
+const (
+	RegisterRoute               = "/register"
+	LoginRoute                  = "/login"
+	QueryStationRoute           = "/station"
+	QueryStationRouteWithParams = QueryStationRoute + "/:" + UUIDParam
 )
 
 type Response struct {

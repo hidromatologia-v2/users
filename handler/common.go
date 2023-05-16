@@ -13,6 +13,7 @@ const (
 	LoginRoute                  = "/login"
 	QueryStationRoute           = "/station"
 	QueryStationRouteWithParams = QueryStationRoute + "/:" + UUIDParam
+	SearchStationsRoute         = "/search/stations"
 )
 
 type Response struct {

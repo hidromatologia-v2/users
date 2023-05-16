@@ -38,6 +38,7 @@ func New(c *models.Controller, msgProducer *memphis.Producer) *Handler {
 	authReq.PATCH(AccountRoute, h.UpdateAccount)
 	// -- Alerts
 	authReq.PUT(AlertRoute, h.CreateAlert)
+	authReq.PATCH(AlertRoute, h.UpdateAlert)
 	// -- Stations
 	return h
 }

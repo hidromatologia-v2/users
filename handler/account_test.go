@@ -55,6 +55,21 @@ func TestUpdateAccount(t *testing.T) {
 		assert.Nil(tt, h.Controller.DB.Where("uuid = ?", u.UUID).First(&user).Error)
 		assert.NotEqual(tt, *u.Name, *user.Name)
 	})
+	t.Run("Invalid JSON", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		token := h.Controller.JWT.New(u.Claims())
+		expect.
+			PATCH(AccountRoute).
+			WithHeader("Authorization", headers.Authorization(token)).
+			WithHeader("Content-Type", "application/json").
+			WithBytes([]byte("[")).
+			Expect().
+			Status(http.StatusBadRequest)
+	})
 	t.Run("Invalid old password", func(tt *testing.T) {
 		expect, h, _, closeFunc := defaultHandler(tt)
 		defer h.Close()

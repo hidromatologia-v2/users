@@ -22,6 +22,7 @@ const (
 	HistoricalRoute             = "/historical"
 	AccountRoute                = "/account"
 	EchoRoute                   = "/echo"
+	AlertRoute                  = "/alert"
 )
 
 type Response struct {

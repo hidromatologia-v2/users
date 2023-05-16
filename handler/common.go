@@ -1,7 +1,12 @@
 package handler
 
 const (
-	APIRoute = "/api"
+	RootRoute = "/"
+	APIRoute  = "/api"
+)
+
+const (
+	SessionVariable = "SESSION_VARIABLE"
 )
 
 const (
@@ -15,6 +20,8 @@ const (
 	QueryStationRouteWithParams = QueryStationRoute + "/:" + UUIDParam
 	SearchStationsRoute         = "/search/stations"
 	HistoricalRoute             = "/historical"
+	AccountRoute                = "/account"
+	EchoRoute                   = "/echo"
 )
 
 type Response struct {

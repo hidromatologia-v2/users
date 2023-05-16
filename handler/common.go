@@ -6,6 +6,7 @@ const (
 
 const (
 	RegisterRoute = "/register"
+	LoginRoute    = "/login"
 )
 
 type Response struct {

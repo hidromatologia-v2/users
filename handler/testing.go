@@ -13,7 +13,8 @@ import (
 
 func defaultHandler(t *testing.T) (expect *httpexpect.Expect, h *Handler, stationName string, closeFunc func()) {
 	opts := models.Options{
-		Database: postgres.NewDefault(),
+		Database:  postgres.NewDefault(),
+		JWTSecret: []byte("MY_SECRET"),
 	}
 	c := models.NewController(&opts)
 	stationName = random.String()

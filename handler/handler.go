@@ -35,6 +35,7 @@ func New(c *models.Controller, msgProducer *memphis.Producer) *Handler {
 	authReq.Any(EchoRoute, h.Echo)
 	// -- Account
 	authReq.GET(AccountRoute, h.QueryAccount)
+	authReq.PATCH(AccountRoute, h.UpdateAccount)
 	// -- Stations
 	return h
 }

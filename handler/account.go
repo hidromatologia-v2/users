@@ -98,3 +98,48 @@ func (h *Handler) ResetPassword(ctx *gin.Context) {
 	}
 	ctx.AbortWithStatusJSON(http.StatusInternalServerError, rErr)
 }
+
+func (h *Handler) RequestConfirmAccount(ctx *gin.Context) {
+	session := ctx.MustGet(SessionVariable).(*tables.User)
+	confirmCode, rErr := h.Controller.RequestConfirmation(session)
+	if rErr != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, Response{Message: rErr.Error()})
+		return
+	}
+	msg := &tables.Message{
+		Type:      tables.Email,
+		Recipient: *session.Email,
+		Subject:   "Confirm account code",
+		Body:      fmt.Sprintf("Your confirmation code is %s", confirmCode),
+	}
+	var buffer bytes.Buffer
+	eErr := json.NewEncoder(&buffer).Encode(msg)
+	if eErr != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, Response{Message: eErr.Error()})
+		return
+	}
+	pErr := h.MessageProducer.Produce(buffer.Bytes())
+	if pErr == nil {
+		ctx.JSON(http.StatusCreated, SucceedResponse)
+		return
+	}
+	ctx.AbortWithStatusJSON(http.StatusInternalServerError, Response{Message: pErr.Error()})
+}
+
+type ConfirmRequest struct {
+	ConfirmCode string `json:"confirmCode"`
+}
+
+func (h *Handler) ConfirmAccount(ctx *gin.Context) {
+	var req ConfirmRequest
+	bErr := ctx.Bind(&req)
+	if bErr != nil {
+		return
+	}
+	cErr := h.Controller.ConfirmAccount(req.ConfirmCode)
+	if cErr == nil {
+		ctx.JSON(http.StatusCreated, SucceedResponse)
+		return
+	}
+	ctx.AbortWithStatusJSON(http.StatusInternalServerError, Response{Message: cErr.Error()})
+}

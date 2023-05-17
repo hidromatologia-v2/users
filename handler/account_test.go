@@ -155,3 +155,65 @@ func TestResetPassword(t *testing.T) {
 			Status(http.StatusBadRequest)
 	})
 }
+
+func TestRequestConfirmAccount(t *testing.T) {
+	t.Run("Valid", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		token := h.Controller.JWT.New(u.Claims())
+		expect.
+			POST(ConfirmAccountRoute).
+			WithHeader("Authorization", headers.Authorization(token)).
+			Expect().
+			Status(http.StatusCreated)
+	})
+}
+
+func TestConfirmAccount(t *testing.T) {
+	t.Run("Valid", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		confirmCode, cErr := h.Controller.RequestConfirmation(u)
+		assert.Nil(tt, cErr)
+		expect.
+			PUT(ConfirmAccountRoute).
+			WithJSON(ConfirmRequest{
+				ConfirmCode: confirmCode,
+			}).
+			Expect().
+			Status(http.StatusCreated)
+	})
+	t.Run("Invalid code", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		expect.
+			PUT(ConfirmAccountRoute).
+			WithJSON(ConfirmRequest{
+				ConfirmCode: random.String(),
+			}).
+			Expect().
+			Status(http.StatusInternalServerError)
+	})
+	t.Run("Invalid JSON", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		expect.
+			PUT(ConfirmAccountRoute).
+			WithHeader("Content-Type", "application/json").
+			WithBytes([]byte("[")).
+			Expect().
+			Status(http.StatusBadRequest)
+	})
+}

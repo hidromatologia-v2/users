@@ -52,5 +52,8 @@ func New(c *models.Controller, msgProducer *memphis.Producer) *Handler {
 	// -- Sensors
 	authReq.PUT(SensorRoute, h.CreateSensors)
 	authReq.DELETE(SensorRoute, h.DeleteSensors)
+	// -- Confirm account
+	authReq.POST(ConfirmAccountRoute, h.RequestConfirmAccount)
+	api.PUT(ConfirmAccountRoute, h.ConfirmAccount)
 	return h
 }

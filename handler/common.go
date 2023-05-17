@@ -25,6 +25,7 @@ const (
 	AlertRoute             = "/alert"
 	AlertRouteWithParam    = AlertRoute + "/:" + UUIDParam
 	ResetPasswordRoute     = "/reset/password"
+	ConfirmAccountRoute    = "/confirm/account"
 )
 
 type Response struct {

@@ -91,3 +91,67 @@ func TestUpdateAccount(t *testing.T) {
 			Status(http.StatusUnauthorized)
 	})
 }
+
+func TestRequestResetPassword(t *testing.T) {
+	t.Run("Valid", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		expect.
+			POST(ResetPasswordRoute).
+			WithJSON(u).
+			Expect().
+			Status(http.StatusCreated)
+	})
+}
+
+func TestResetPassword(t *testing.T) {
+	t.Run("Valid", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		resetCode, rErr := h.Controller.RequestResetPassword(u)
+		assert.Nil(tt, rErr)
+		newPassword := random.String()
+		expect.
+			PUT(ResetPasswordRoute).
+			WithJSON(ResetRequest{
+				ResetCode:   resetCode,
+				NewPassword: newPassword[:72],
+			}).
+			Expect().
+			Status(http.StatusCreated)
+	})
+	t.Run("Invalid code", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		expect.
+			PUT(ResetPasswordRoute).
+			WithJSON(ResetRequest{
+				ResetCode:   random.String(),
+				NewPassword: random.String(),
+			}).
+			Expect().
+			Status(http.StatusInternalServerError)
+	})
+	t.Run("Invalid JSON", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		expect.
+			PUT(ResetPasswordRoute).
+			WithHeader("Content-Type", "application/json").
+			WithBytes([]byte("[")).
+			Expect().
+			Status(http.StatusBadRequest)
+	})
+}

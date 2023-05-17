@@ -30,6 +30,9 @@ func New(c *models.Controller, msgProducer *memphis.Producer) *Handler {
 	api.GET(StationRouteWithParams, h.QueryStation)
 	api.POST(StationRoute, h.SearchStations)
 	api.POST(HistoricalRoute, h.Historical)
+	// -- Reset password
+	api.POST(ResetPasswordRoute, h.RequestPasswordReset)
+	api.PUT(ResetPasswordRoute, h.ResetPassword)
 	// Auth Req
 	authReq := api.Group(RootRoute, h.Authorize)
 	authReq.Any(EchoRoute, h.Echo)

@@ -66,3 +66,26 @@ func (h *Handler) DeleteAlert(ctx *gin.Context) {
 	}
 	ctx.AbortWithStatusJSON(http.StatusInternalServerError, Response{Message: dErr.Error()})
 }
+
+func (h *Handler) QueryAlert(ctx *gin.Context) {
+	session := ctx.MustGet(SessionVariable).(*tables.User)
+	var (
+		a    tables.Alert
+		pErr error
+	)
+	a.UUID, pErr = uuid.FromString(ctx.Param(UUIDParam))
+	if pErr != nil {
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	alert, qErr := h.Controller.QueryOneAlert(session, &a)
+	if qErr == nil {
+		ctx.JSON(http.StatusOK, alert)
+		return
+	}
+	if errors.Is(qErr, models.ErrUnauthorized) {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, UnauthorizedResponse)
+		return
+	}
+	ctx.AbortWithStatusJSON(http.StatusInternalServerError, Response{Message: qErr.Error()})
+}

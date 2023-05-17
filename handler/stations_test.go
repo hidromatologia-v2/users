@@ -178,3 +178,53 @@ func TestCreateStation(t *testing.T) {
 			Status(http.StatusBadRequest)
 	})
 }
+
+func TestDeleteStation(t *testing.T) {
+	t.Run("Valid", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		u.Confirmed = &tables.True
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		token := h.Controller.JWT.New(u.Claims())
+		s := tables.RandomStation(u)
+		assert.Nil(tt, h.Controller.DB.Create(s).Error)
+		expect.
+			DELETE(StationRoute+"/"+s.UUID.String()).
+			WithHeader("Authorization", headers.Authorization(token)).
+			Expect().
+			Status(http.StatusOK)
+	})
+	t.Run("Other user station", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		u2 := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u2).Error)
+		token := h.Controller.JWT.New(u.Claims())
+		s := tables.RandomStation(u2)
+		assert.Nil(tt, h.Controller.DB.Create(s).Error)
+		expect.
+			DELETE(StationRoute+"/"+s.UUID.String()).
+			WithHeader("Authorization", headers.Authorization(token)).
+			Expect().
+			Status(http.StatusUnauthorized)
+	})
+	t.Run("Invalid UUID", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		u.Confirmed = &tables.True
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		token := h.Controller.JWT.New(u.Claims())
+		expect.
+			DELETE(StationRoute+"/INVALID").
+			WithHeader("Authorization", headers.Authorization(token)).
+			Expect().
+			Status(http.StatusBadRequest)
+	})
+}

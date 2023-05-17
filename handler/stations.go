@@ -97,3 +97,22 @@ func (h *Handler) DeleteStation(ctx *gin.Context) {
 	}
 	ctx.AbortWithStatusJSON(http.StatusInternalServerError, Response{Message: dErr.Error()})
 }
+
+func (h *Handler) UpdateStation(ctx *gin.Context) {
+	session := ctx.MustGet(SessionVariable).(*tables.User)
+	var s tables.Station
+	bErr := ctx.Bind(&s)
+	if bErr != nil {
+		return
+	}
+	uErr := h.Controller.UpdateStation(session, &s)
+	if uErr == nil {
+		ctx.JSON(http.StatusOK, SucceedResponse)
+		return
+	}
+	if errors.Is(uErr, models.ErrUnauthorized) {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, UnauthorizedResponse)
+		return
+	}
+	ctx.AbortWithStatusJSON(http.StatusInternalServerError, Response{Message: uErr.Error()})
+}

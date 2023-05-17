@@ -228,3 +228,65 @@ func TestDeleteStation(t *testing.T) {
 			Status(http.StatusBadRequest)
 	})
 }
+
+func TestUpdateStation(t *testing.T) {
+	t.Run("Valid", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		u.Confirmed = &tables.True
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		token := h.Controller.JWT.New(u.Claims())
+		s := tables.RandomStation(u)
+		assert.Nil(tt, h.Controller.DB.Create(s).Error)
+		newName := random.String()
+		expect.
+			PATCH(StationRoute).
+			WithHeader("Authorization", headers.Authorization(token)).
+			WithJSON(tables.Station{
+				Model: s.Model,
+				Name:  &newName,
+			}).
+			Expect().
+			Status(http.StatusOK)
+	})
+	t.Run("Invalid JSON", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		u.Confirmed = &tables.True
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		token := h.Controller.JWT.New(u.Claims())
+		expect.
+			PATCH(StationRoute).
+			WithHeader("Authorization", headers.Authorization(token)).
+			WithHeader("Content-Type", "application/json").
+			WithBytes([]byte("[")).
+			Expect().
+			Status(http.StatusBadRequest)
+	})
+	t.Run("Other user station", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		u2 := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u2).Error)
+		token := h.Controller.JWT.New(u.Claims())
+		s := tables.RandomStation(u2)
+		assert.Nil(tt, h.Controller.DB.Create(s).Error)
+		newName := random.String()
+		expect.
+			PATCH(StationRoute).
+			WithHeader("Authorization", headers.Authorization(token)).
+			WithJSON(tables.Station{
+				Model: s.Model,
+				Name:  &newName,
+			}).
+			Expect().
+			Status(http.StatusUnauthorized)
+	})
+}

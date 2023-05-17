@@ -14,16 +14,15 @@ const (
 )
 
 const (
-	RegisterRoute               = "/register"
-	LoginRoute                  = "/login"
-	QueryStationRoute           = "/station"
-	QueryStationRouteWithParams = QueryStationRoute + "/:" + UUIDParam
-	SearchStationsRoute         = "/search/stations"
-	HistoricalRoute             = "/historical"
-	AccountRoute                = "/account"
-	EchoRoute                   = "/echo"
-	AlertRoute                  = "/alert"
-	AlertRouteWithParam         = AlertRoute + "/:" + UUIDParam
+	RegisterRoute          = "/register"
+	LoginRoute             = "/login"
+	StationRoute           = "/station"
+	StationRouteWithParams = StationRoute + "/:" + UUIDParam
+	HistoricalRoute        = "/historical"
+	AccountRoute           = "/account"
+	EchoRoute              = "/echo"
+	AlertRoute             = "/alert"
+	AlertRouteWithParam    = AlertRoute + "/:" + UUIDParam
 )
 
 type Response struct {

@@ -27,8 +27,8 @@ func New(c *models.Controller, msgProducer *memphis.Producer) *Handler {
 	// -- Public
 	api.PUT(RegisterRoute, h.Register)
 	api.POST(LoginRoute, h.Login)
-	api.GET(QueryStationRouteWithParams, h.QueryStation)
-	api.POST(SearchStationsRoute, h.SearchStations)
+	api.GET(StationRouteWithParams, h.QueryStation)
+	api.POST(StationRoute, h.SearchStations)
 	api.POST(HistoricalRoute, h.Historical)
 	// Auth Req
 	authReq := api.Group(RootRoute, h.Authorize)
@@ -43,5 +43,6 @@ func New(c *models.Controller, msgProducer *memphis.Producer) *Handler {
 	authReq.GET(AlertRouteWithParam, h.QueryAlert)
 	authReq.POST(AlertRoute, h.SearchAlerts)
 	// -- Stations
+	authReq.PUT(StationRoute, h.CreateStation)
 	return h
 }

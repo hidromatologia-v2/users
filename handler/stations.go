@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -53,4 +54,23 @@ func (h *Handler) Historical(ctx *gin.Context) {
 		return
 	}
 	ctx.AbortWithStatusJSON(http.StatusInternalServerError, Response{Message: hErr.Error()})
+}
+
+func (h *Handler) CreateStation(ctx *gin.Context) {
+	session := ctx.MustGet(SessionVariable).(*tables.User)
+	var s tables.Station
+	bErr := ctx.Bind(&s)
+	if bErr != nil {
+		return
+	}
+	station, cErr := h.Controller.CreateStation(session, &s)
+	if cErr == nil {
+		ctx.JSON(http.StatusCreated, station)
+		return
+	}
+	if errors.Is(cErr, models.ErrUnauthorized) {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, UnauthorizedResponse)
+		return
+	}
+	ctx.AbortWithStatusJSON(http.StatusInternalServerError, Response{Message: cErr.Error()})
 }

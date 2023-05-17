@@ -41,6 +41,7 @@ func New(c *models.Controller, msgProducer *memphis.Producer) *Handler {
 	authReq.PATCH(AlertRoute, h.UpdateAlert)
 	authReq.DELETE(AlertRouteWithParam, h.DeleteAlert)
 	authReq.GET(AlertRouteWithParam, h.QueryAlert)
+	authReq.POST(AlertRoute, h.SearchAlerts)
 	// -- Stations
 	return h
 }

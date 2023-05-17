@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/hidromatologia-v2/models"
 	"github.com/hidromatologia-v2/models/common/random"
 	"github.com/hidromatologia-v2/models/tables"
 	"github.com/hidromatologia-v2/users/common/headers"
@@ -241,6 +242,55 @@ func TestQueryAlert(t *testing.T) {
 			GET(AlertRoute+"/INVALID").
 			WithHeader("Authorization", headers.Authorization(token)).
 			WithHeader("Content-Type", "application/json").
+			Expect().
+			Status(http.StatusBadRequest)
+	})
+}
+
+func TestSearchAlerts(t *testing.T) {
+	t.Run("Valid", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		token := h.Controller.JWT.New(u.Claims())
+		s := tables.RandomStation(u)
+		assert.Nil(tt, h.Controller.DB.Create(s).Error)
+		sensor := s.Sensors[0]
+		// -- Create alerts
+		for i := 0; i < 10; i++ {
+			a := tables.RandomAlert(u, &sensor)
+			assert.Nil(tt, h.Controller.DB.Create(a).Error)
+		}
+		// --
+		var results models.Results[tables.Alert]
+		expect.
+			POST(AlertRoute).
+			WithHeader("Authorization", headers.Authorization(token)).
+			WithJSON(models.Filter[tables.Alert]{
+				Page:     1,
+				PageSize: 100,
+			}).
+			Expect().
+			Status(http.StatusOK).
+			JSON().
+			Object().
+			Decode(&results)
+		assert.Equal(tt, 10, results.Count)
+	})
+	t.Run("Invalid JSON", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		token := h.Controller.JWT.New(u.Claims())
+		expect.
+			POST(AlertRoute).
+			WithHeader("Authorization", headers.Authorization(token)).
+			WithHeader("Content-Type", "application/json").
+			WithBytes([]byte("[")).
 			Expect().
 			Status(http.StatusBadRequest)
 	})

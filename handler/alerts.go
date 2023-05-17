@@ -89,3 +89,18 @@ func (h *Handler) QueryAlert(ctx *gin.Context) {
 	}
 	ctx.AbortWithStatusJSON(http.StatusInternalServerError, Response{Message: qErr.Error()})
 }
+
+func (h *Handler) SearchAlerts(ctx *gin.Context) {
+	session := ctx.MustGet(SessionVariable).(*tables.User)
+	var filter models.Filter[tables.Alert]
+	pErr := ctx.Bind(&filter)
+	if pErr != nil {
+		return
+	}
+	results, qErr := h.Controller.QueryManyAlert(session, &filter)
+	if qErr == nil {
+		ctx.JSON(http.StatusOK, results)
+		return
+	}
+	ctx.AbortWithStatusJSON(http.StatusInternalServerError, Response{Message: qErr.Error()})
+}

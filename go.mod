@@ -7,6 +7,9 @@ require (
 	github.com/gin-gonic/gin v1.9.0
 	github.com/hidromatologia-v2/models v0.0.14
 	github.com/memphisdev/memphis.go v1.0.1
+	github.com/redis/go-redis/v9 v9.0.3
+	github.com/satori/go.uuid v1.2.0
+	github.com/stretchr/testify v1.8.2
 )
 
 require (
@@ -69,13 +72,10 @@ require (
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.42.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect
-	github.com/redis/go-redis/v9 v9.0.3 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/sanity-io/litter v1.5.5 // indirect
 	github.com/santhosh-tekuri/jsonschema/v5 v5.1.0 // indirect
-	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/sergi/go-diff v1.0.0 // indirect
-	github.com/stretchr/testify v1.8.2 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.9 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect

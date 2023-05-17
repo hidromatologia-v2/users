@@ -116,3 +116,41 @@ func (h *Handler) UpdateStation(ctx *gin.Context) {
 	}
 	ctx.AbortWithStatusJSON(http.StatusInternalServerError, Response{Message: uErr.Error()})
 }
+
+func (h *Handler) CreateSensors(ctx *gin.Context) {
+	session := ctx.MustGet(SessionVariable).(*tables.User)
+	var station tables.Station
+	bErr := ctx.Bind(&station)
+	if bErr != nil {
+		return
+	}
+	err := h.Controller.AddSensors(session, &station, station.Sensors)
+	if err == nil {
+		ctx.JSON(http.StatusOK, SucceedResponse)
+		return
+	}
+	if errors.Is(err, models.ErrUnauthorized) {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, UnauthorizedResponse)
+		return
+	}
+	ctx.AbortWithStatusJSON(http.StatusInternalServerError, Response{Message: err.Error()})
+}
+
+func (h *Handler) DeleteSensors(ctx *gin.Context) {
+	session := ctx.MustGet(SessionVariable).(*tables.User)
+	var station tables.Station
+	bErr := ctx.Bind(&station)
+	if bErr != nil {
+		return
+	}
+	err := h.Controller.DeleteSensors(session, &station, station.Sensors)
+	if err == nil {
+		ctx.JSON(http.StatusOK, SucceedResponse)
+		return
+	}
+	if errors.Is(err, models.ErrUnauthorized) {
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, UnauthorizedResponse)
+		return
+	}
+	ctx.AbortWithStatusJSON(http.StatusInternalServerError, Response{Message: err.Error()})
+}

@@ -16,6 +16,7 @@ const (
 const (
 	RegisterRoute          = "/register"
 	LoginRoute             = "/login"
+	SensorRoute            = "/sensor"
 	StationRoute           = "/station"
 	StationRouteWithParams = StationRoute + "/:" + UUIDParam
 	HistoricalRoute        = "/historical"

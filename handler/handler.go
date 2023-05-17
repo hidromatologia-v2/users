@@ -46,5 +46,8 @@ func New(c *models.Controller, msgProducer *memphis.Producer) *Handler {
 	authReq.PUT(StationRoute, h.CreateStation)
 	authReq.DELETE(StationRouteWithParams, h.DeleteStation)
 	authReq.PATCH(StationRoute, h.UpdateStation)
+	// -- Sensors
+	authReq.PUT(SensorRoute, h.CreateSensors)
+	authReq.DELETE(SensorRoute, h.DeleteSensors)
 	return h
 }

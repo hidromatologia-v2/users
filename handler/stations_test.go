@@ -290,3 +290,156 @@ func TestUpdateStation(t *testing.T) {
 			Status(http.StatusUnauthorized)
 	})
 }
+
+func TestCreateSensors(t *testing.T) {
+	t.Run("Valid", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		u.Confirmed = &tables.True
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		token := h.Controller.JWT.New(u.Claims())
+		s := tables.RandomStation(u)
+		s.Sensors = nil
+		assert.Nil(tt, h.Controller.DB.Create(s).Error)
+		expect.
+			PUT(SensorRoute).
+			WithHeader("Authorization", headers.Authorization(token)).
+			WithJSON(tables.Station{
+				Model: s.Model,
+				Sensors: []tables.Sensor{
+					{
+						Type: random.String(),
+					},
+					{
+						Type: random.String(),
+					},
+					{
+						Type: random.String(),
+					},
+					{
+						Type: random.String(),
+					},
+				},
+			}).
+			Expect().
+			Status(http.StatusOK)
+		var station tables.Station
+		assert.Nil(tt, h.Controller.DB.Where("uuid = ?", s.UUID).Preload("Sensors").First(&station).Error)
+		assert.Len(tt, station.Sensors, 4)
+	})
+	t.Run("Invalid JSON", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		u.Confirmed = &tables.True
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		token := h.Controller.JWT.New(u.Claims())
+		expect.
+			PUT(SensorRoute).
+			WithHeader("Authorization", headers.Authorization(token)).
+			WithHeader("Content-Type", "application/json").
+			WithBytes([]byte("[")).
+			Expect().
+			Status(http.StatusBadRequest)
+	})
+	t.Run("Other user station", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		u2 := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u2).Error)
+		token := h.Controller.JWT.New(u.Claims())
+		s := tables.RandomStation(u2)
+		assert.Nil(tt, h.Controller.DB.Create(s).Error)
+		expect.
+			PUT(SensorRoute).
+			WithHeader("Authorization", headers.Authorization(token)).
+			WithJSON(tables.Station{
+				Model: s.Model,
+				Sensors: []tables.Sensor{
+					{
+						Type: random.String(),
+					},
+					{
+						Type: random.String(),
+					},
+					{
+						Type: random.String(),
+					},
+					{
+						Type: random.String(),
+					},
+				},
+			}).
+			Expect().
+			Status(http.StatusUnauthorized)
+	})
+}
+
+func TestDeleteSensors(t *testing.T) {
+	t.Run("Valid", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		u.Confirmed = &tables.True
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		token := h.Controller.JWT.New(u.Claims())
+		s := tables.RandomStation(u)
+		assert.Nil(tt, h.Controller.DB.Create(s).Error)
+		expect.
+			DELETE(SensorRoute).
+			WithHeader("Authorization", headers.Authorization(token)).
+			WithJSON(tables.Station{
+				Model:   s.Model,
+				Sensors: s.Sensors,
+			}).
+			Expect().
+			Status(http.StatusOK)
+		var station tables.Station
+		assert.Nil(tt, h.Controller.DB.Where("uuid = ?", s.UUID).Preload("Sensors").First(&station).Error)
+		assert.Len(tt, station.Sensors, 0)
+	})
+	t.Run("Invalid JSON", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		u.Confirmed = &tables.True
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		token := h.Controller.JWT.New(u.Claims())
+		expect.
+			DELETE(SensorRoute).
+			WithHeader("Authorization", headers.Authorization(token)).
+			WithHeader("Content-Type", "application/json").
+			WithBytes([]byte("[")).
+			Expect().
+			Status(http.StatusBadRequest)
+	})
+	t.Run("Other user station", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		u2 := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u2).Error)
+		token := h.Controller.JWT.New(u.Claims())
+		s := tables.RandomStation(u2)
+		assert.Nil(tt, h.Controller.DB.Create(s).Error)
+		expect.
+			DELETE(SensorRoute).
+			WithHeader("Authorization", headers.Authorization(token)).
+			WithJSON(tables.Station{
+				Model:   s.Model,
+				Sensors: s.Sensors,
+			}).
+			Expect().
+			Status(http.StatusUnauthorized)
+	})
+}

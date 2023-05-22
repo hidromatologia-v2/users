@@ -9,6 +9,7 @@ require (
 	github.com/memphisdev/memphis.go v1.0.1
 	github.com/redis/go-redis/v9 v9.0.3
 	github.com/satori/go.uuid v1.2.0
+	github.com/sethvargo/go-envconfig v0.9.0
 	github.com/stretchr/testify v1.8.2
 )
 

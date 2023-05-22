@@ -1,0 +1,913 @@
+openapi: 3.0.3
+info:
+  title: users
+  description: |-
+    Documentation for the [users](https://github.com/hidromatologia-v2/users) API.
+  license:
+    name: MIT
+  version: TBA
+tags:
+  - name: Session
+    description: Session handling routes
+  - name: Public Stations
+    description: Query public station information
+  - name: Password reset
+    description: Routes for password reset
+  - name: Account
+    description: Session account information
+  - name: Alerts
+    description: Alert CRUD
+  - name: Stations
+    description: Stations CRUD
+  - name: Sensors
+    description: Sensors CRUD
+  - name: Account confirmation
+    description: Routes for account confirmation
+paths:
+  # Session
+  /api/register:
+    put:
+      description: Register a new user into the app
+      tags:
+        - Session
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                name:
+                  type: string
+                phone:
+                  type: string
+                email:
+                  type: string
+      responses:
+        "201":
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Something went wrong
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+  /api/login:
+    post:
+      description: User Login
+      tags:
+        - Session
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "201":
+          description: Login succeed, JWT is the 'message' field
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Something went wrong
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+  # Public Stations
+  /api/station/{uuid}:
+    get:
+      description: Query station information
+      tags:
+        - Public Stations
+      parameters:
+        - in: path
+          name: uuid
+          description: Station UUID
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Station information
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/station"
+                  - type: object
+                    properties:
+                      sensors:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/sensor"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Something went wrong
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+    delete:
+      description: Delete station
+      tags:
+        - Stations
+      security:
+        - authorization: []
+      parameters:
+        - in: path
+          name: uuid
+          description: Station UUID
+          schema:
+            type: string
+          required: true
+      responses:
+        "200":
+          description: Station deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Something went wrong
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+  /api/station:
+    post:
+      description: Search stations
+      tags:
+        - Public Stations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/filter"
+                - type: object
+                  properties:
+                    target:
+                      $ref: "#/components/schemas/station"
+      responses:
+        "200":
+          description: Station information
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/results"
+                  - type: object
+                    properties:
+                      entries:
+                        allOf:
+                          - $ref: "#/components/schemas/station"
+                          - type: object
+                            properties:
+                              sensors:
+                                type: array
+                                items:
+                                  $ref: "#/components/schemas/sensor"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Something went wrong
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+    put:
+      description: Create a station
+      tags:
+        - Stations
+      security:
+        - authorization: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/station"
+      responses:
+        "200":
+          description: Station created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+    patch:
+      description: Update station
+      tags:
+        - Stations
+      security:
+        - authorization: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/station"
+      responses:
+        "200":
+          description: Station updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+  /api/historical:
+    post:
+      description: Query historical sensor data
+      tags:
+        - Public Stations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sensorUUID:
+                  type: string
+                from:
+                  type: string
+                to:
+                  type: string
+      responses:
+        "200":
+          description: Historical sensor data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/sensorRegistry"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Something went wrong
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+  # Password reset
+  /api/reset/password:
+    post:
+      description: Request a password reset
+      tags:
+        - Password reset
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+      responses:
+        "200":
+          description: Email sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+    put:
+      description: Reset password
+      tags:
+        - Password reset
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resetCode:
+                  type: string
+                newPassword:
+                  type: string
+      responses:
+        "201":
+          description: Password reset
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+  # Account
+  /api/account:
+    get:
+      description: Query session account information
+      tags:
+        - Account
+      security:
+        - authorization: []
+      responses:
+        "200":
+          description: User information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/user"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+    patch:
+      description: Update session account information
+      tags:
+        - Account
+      security:
+        - authorization: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  $ref: "#/components/schemas/user"
+                oldPassword:
+                  type: string
+      responses:
+        "200":
+          description: User information updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+  # Alerts
+  /api/alert:
+    put:
+      description: Crate alert
+      tags:
+        - Alerts
+      security:
+        - authorization: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/alert"
+      responses:
+        "201":
+          description: Alert created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+    patch:
+      description: Update alert
+      tags:
+        - Alerts
+      security:
+        - authorization: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/alert"
+      responses:
+        "200":
+          description: Results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+    post:
+      description: Search alerts
+      tags:
+        - Alerts
+      security:
+        - authorization: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/filter"
+                - type: object
+                  properties:
+                    target:
+                      $ref: "#/components/schemas/alert"
+      responses:
+        "200":
+          description: results
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/results"
+                  - type: object
+                    properties:
+                      entries:
+                        $ref: "#/components/schemas/alert"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+  /api/alert/{uuid}:
+    get:
+      description: Query alert by UUID
+      tags:
+        - Alerts
+      security:
+        - authorization: []
+      parameters:
+        - in: path
+          required: true
+          name: uuid
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Alert information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/alert"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+    delete:
+      description: Delete alert by UUID
+      tags:
+        - Alerts
+      security:
+        - authorization: []
+      parameters:
+        - in: path
+          required: true
+          name: uuid
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Alert deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+  # Sensors
+  /api/sensor:
+    put:
+      description: Add sensors
+      tags:
+        - Sensors
+      security:
+        - authorization: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                uuid:
+                  type: string
+                  description: station UUID
+                sensors:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/sensor"
+      responses:
+        "200":
+          description: Sensors created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+    patch:
+      description: Delete sensors
+      tags:
+        - Sensors
+      security:
+        - authorization: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                uuid:
+                  type: string
+                  description: station UUID
+                sensors:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/sensor"
+      responses:
+        "200":
+          description: Sensors deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+  # Confirm Account
+  /api/confirm/account:
+    post:
+      description: Request account confirmation
+      tags:
+        - Account confirmation
+      security:
+        - authorization: []
+      responses:
+        "200":
+          description: email sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+    put:
+      description: Confirm account confirmation
+      tags:
+        - Account confirmation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                confirmCode:
+                  type: string
+      responses:
+        "200":
+          description: Account confirmed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/response"
+components:
+  securitySchemes:
+    authorization:
+      type: http
+      scheme: bearer
+  schemas:
+    response:
+      type: object
+      properties:
+        message:
+          type: string
+    filter:
+      type: object
+      properties:
+        page:
+          type: number
+        pageSize:
+          type: number
+    results:
+      type: object
+      properties:
+        page:
+          type: number
+        pageSize:
+          type: number
+        count:
+          type: number
+    station:
+      type: object
+      properties:
+        uuid:
+          type: string
+        userUUID:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        country:
+          type: number
+        subdivision:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+    sensor:
+      type: object
+      properties:
+        uuid:
+          type: string
+        stationUUID:
+          type: string
+        type:
+          type: string
+    sensorRegistry:
+      type: object
+      properties:
+        uuid:
+          type: string
+        sensorUUID:
+          type: string
+        value:
+          type: number
+    user:
+      type: object
+      properties:
+        uuid:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        confirmed:
+          type: boolean
+    alert:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+        sensorUUID:
+          type: string
+        condition:
+          type: string
+        value:
+          type: number
+        enabled:
+          type: boolean

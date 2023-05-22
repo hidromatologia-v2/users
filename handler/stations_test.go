@@ -393,7 +393,7 @@ func TestDeleteSensors(t *testing.T) {
 		s := tables.RandomStation(u)
 		assert.Nil(tt, h.Controller.DB.Create(s).Error)
 		expect.
-			DELETE(SensorRoute).
+			PATCH(SensorRoute).
 			WithHeader("Authorization", headers.Authorization(token)).
 			WithJSON(tables.Station{
 				Model:   s.Model,
@@ -414,7 +414,7 @@ func TestDeleteSensors(t *testing.T) {
 		assert.Nil(tt, h.Controller.DB.Create(u).Error)
 		token := h.Controller.JWT.New(u.Claims())
 		expect.
-			DELETE(SensorRoute).
+			PATCH(SensorRoute).
 			WithHeader("Authorization", headers.Authorization(token)).
 			WithHeader("Content-Type", "application/json").
 			WithBytes([]byte("[")).
@@ -433,7 +433,7 @@ func TestDeleteSensors(t *testing.T) {
 		s := tables.RandomStation(u2)
 		assert.Nil(tt, h.Controller.DB.Create(s).Error)
 		expect.
-			DELETE(SensorRoute).
+			PATCH(SensorRoute).
 			WithHeader("Authorization", headers.Authorization(token)).
 			WithJSON(tables.Station{
 				Model:   s.Model,

@@ -10,8 +10,8 @@ FROM alpine:latest AS release-stage
 
 COPY --from=build-stage /users /users
 # -- Environment variables
-ENV MEMPHIS_STATION     "alerts"
-ENV MEMPHIS_PRODUCER    "alerts-producer"
+ENV MEMPHIS_STATION     "messages"
+ENV MEMPHIS_PRODUCER    "messages-producer"
 ENV MEMPHIS_HOST        "memphis"
 ENV MEMPHIS_USERNAME    "root"
 ENV MEMPHIS_PASSWORD    "memphis"

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.3 (2023-05-25)
+
+
+### Bug Fixes
+
+* added the ability to query the API Key of an owned station ([0b03390](https://github.com/hidromatologia-v2/users/commit/0b03390c53111c58f65f8c62cefc25b6a39199a7))
+
 ### 0.0.2 (2023-05-22)
 
 ### 0.0.1 (2023-05-22)

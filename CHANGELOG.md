@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.5 (2023-05-25)
+
+
+### Bug Fixes
+
+* added authorization header to CORS configuration ([2c3889c](https://github.com/hidromatologia-v2/users/commit/2c3889cd3fdefcd5f557411fc9e9563be0a85e95))
+
 ### 0.0.4 (2023-05-25)
 
 

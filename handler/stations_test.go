@@ -31,6 +31,29 @@ func TestQueryStation(t *testing.T) {
 			Decode(&station)
 		assert.Equal(tt, s.UUID, station.UUID)
 	})
+
+	t.Run("With Session", func(tt *testing.T) {
+		expect, h, _, closeFunc := defaultHandler(tt)
+		defer h.Close()
+		defer closeFunc()
+		u := tables.RandomUser()
+		assert.Nil(tt, h.Controller.DB.Create(u).Error)
+		token := h.Controller.JWT.New(u.Claims())
+		s := tables.RandomStation(u)
+		assert.Nil(tt, h.Controller.DB.Create(s).Error)
+		var station tables.Station
+		expect.
+			GET(StationRoute+"/"+s.UUID.String()).
+			WithHeader("Authorization", headers.Authorization(token)).
+			Expect().
+			Status(http.StatusOK).
+			JSON().
+			Object().
+			Decode(&station)
+		assert.Equal(tt, s.UUID, station.UUID)
+		assert.NotNil(tt, station.APIKeyJSON)
+		assert.Equal(tt, s.APIKey, *station.APIKeyJSON)
+	})
 	t.Run("Invalid UUID", func(tt *testing.T) {
 		expect, h, _, closeFunc := defaultHandler(tt)
 		defer h.Close()

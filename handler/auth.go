@@ -33,4 +33,22 @@ func (h *Handler) Authorize(ctx *gin.Context) {
 	ctx.AbortWithStatusJSON(http.StatusInternalServerError, Response{Message: aErr.Error()})
 }
 
+func (h *Handler) OptionalAuth(ctx *gin.Context) {
+	defer ctx.Next()
+	auth := ctx.GetHeader("Authorization")
+	b64Token := bearerRegexp.ReplaceAllString(auth, "")
+	token, dErr := base64.StdEncoding.DecodeString(b64Token)
+	if dErr != nil {
+		return
+	}
+	user, aErr := h.Controller.Authorize(string(token))
+	if aErr == nil {
+		ctx.Set(SessionVariable, user)
+		return
+	}
+	if errors.Is(aErr, models.ErrUnauthorized) {
+		return
+	}
+}
+
 func (h *Handler) Echo(ctx *gin.Context) {}

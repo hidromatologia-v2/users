@@ -24,10 +24,12 @@ func New(c *models.Controller, msgProducer *memphis.Producer) *Handler {
 		Engine:          gin.Default(),
 	}
 	api := h.Group(APIRoute)
+	// -- Optional Auth
+	authOpt := api.Group(RootRoute, h.OptionalAuth)
 	// -- Public
 	api.PUT(RegisterRoute, h.Register)
 	api.POST(LoginRoute, h.Login)
-	api.GET(StationRouteWithParams, h.QueryStation)
+	authOpt.GET(StationRouteWithParams, h.QueryStation)
 	api.POST(StationRoute, h.SearchStations)
 	api.POST(HistoricalRoute, h.Historical)
 	// -- Reset password

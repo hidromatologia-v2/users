@@ -20,7 +20,16 @@ func (h *Handler) QueryStation(ctx *gin.Context) {
 		ctx.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
-	station, qErr := h.Controller.QueryStationNoAPIKey(&s)
+	session, sessionExists := ctx.Get(SessionVariable)
+	var (
+		station *tables.Station
+		qErr    error
+	)
+	if sessionExists {
+		station, qErr = h.Controller.QueryStationAPIKey(session.(*tables.User), &s)
+	} else {
+		station, qErr = h.Controller.QueryStationNoAPIKey(&s)
+	}
 	if qErr == nil {
 		ctx.JSON(http.StatusOK, station)
 		return

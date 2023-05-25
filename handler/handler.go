@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/hidromatologia-v2/models"
 	"github.com/memphisdev/memphis.go"
@@ -23,6 +24,7 @@ func New(c *models.Controller, msgProducer *memphis.Producer) *Handler {
 		MessageProducer: msgProducer,
 		Engine:          gin.Default(),
 	}
+	h.Engine.Use(cors.Default())
 	api := h.Group(APIRoute)
 	// -- Optional Auth
 	authOpt := api.Group(RootRoute, h.OptionalAuth)

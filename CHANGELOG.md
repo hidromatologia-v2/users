@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.4 (2023-05-25)
+
+
+### Bug Fixes
+
+* added cors to go.mod ([58aae8c](https://github.com/hidromatologia-v2/users/commit/58aae8cb20ca1a2b07731cf0d652b1940315061e))
+
 ### 0.0.3 (2023-05-25)
 
 

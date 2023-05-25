@@ -24,7 +24,10 @@ func New(c *models.Controller, msgProducer *memphis.Producer) *Handler {
 		MessageProducer: msgProducer,
 		Engine:          gin.Default(),
 	}
-	h.Engine.Use(cors.Default())
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowAllOrigins = true
+	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "Authorization")
+	h.Engine.Use(cors.New(corsConfig))
 	api := h.Group(APIRoute)
 	// -- Optional Auth
 	authOpt := api.Group(RootRoute, h.OptionalAuth)

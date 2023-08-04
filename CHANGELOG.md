@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 0.0.7 (2023-08-04)
+
+
+### Bug Fixes
+
+* query station even with session not even from owner (removes the api key in that scenario) ([cb5a7e1](https://github.com/hidromatologia-v2/users/commit/cb5a7e169b64447e3ef5801f61d11f5d4e08060d))
+
 ### 0.0.6 (2023-08-04)
 
 

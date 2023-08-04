@@ -27,6 +27,9 @@ func (h *Handler) QueryStation(ctx *gin.Context) {
 	)
 	if sessionExists {
 		station, qErr = h.Controller.QueryStationAPIKey(session.(*tables.User), &s)
+		if errors.Is(qErr, models.ErrUnauthorized) {
+			station, qErr = h.Controller.QueryStationNoAPIKey(&s)
+		}
 	} else {
 		station, qErr = h.Controller.QueryStationNoAPIKey(&s)
 	}

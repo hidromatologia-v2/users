@@ -28,7 +28,7 @@ func New(c *models.Controller, msgProducer *memphis.Producer) *Handler {
 	corsConfig.AllowAllOrigins = true
 	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "Authorization")
 	h.Engine.Use(cors.New(corsConfig))
-	api := h.Group(APIRoute)
+	api := h.Group(RootRoute)
 	// -- Optional Auth
 	authOpt := api.Group(RootRoute, h.OptionalAuth)
 	// -- Public

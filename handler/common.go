@@ -2,7 +2,6 @@ package handler
 
 const (
 	RootRoute = "/"
-	APIRoute  = "/api"
 )
 
 const (

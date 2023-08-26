@@ -19,17 +19,6 @@ services:
     container_name: server-messages
     restart: unless-stopped
     image: ghcr.io/hidromatologia-v2/messages:latest
-  users:
-    networks:
-      - server
-      - memphis
-    container_name: server-users
-    restart: unless-stopped
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - '127.0.0.1:5000:5000'
   # Dependencies
   postgres:
     networks:

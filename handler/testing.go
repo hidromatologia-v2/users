@@ -28,7 +28,7 @@ func defaultHandler(t *testing.T) (expect *httpexpect.Expect, h *Handler, statio
 	}
 	c := models.NewController(&opts)
 	stationName = random.String()
-	h = New(c, connection.NewProducer(t, stationName))
+	h = New(c, connection.NewProducer(t, stationName, random.String()[:64]))
 	server := httptest.NewServer(h)
 	expect = httpexpect.Default(t, server.URL)
 	return expect, h, stationName, func() {

@@ -11,6 +11,7 @@ import (
 	"github.com/hidromatologia-v2/users/handler"
 	"github.com/memphisdev/memphis.go"
 	redis_v9 "github.com/redis/go-redis/v9"
+	uuid "github.com/satori/go.uuid"
 	"github.com/sethvargo/go-envconfig"
 )
 
@@ -36,7 +37,7 @@ func newProducer(config *Config) *memphis.Producer {
 	logFatalErr(connErr)
 	producer, producerErr := conn.CreateProducer(
 		config.Producer.Station,
-		config.Producer.Producer,
+		config.Producer.Producer+uuid.NewV4().String(),
 	)
 	logFatalErr(producerErr)
 	return producer

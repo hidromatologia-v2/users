@@ -12,9 +12,11 @@ Users monolithic service API
 
 ## Documentation
 
-| File                                             | Description                                  |
-| ------------------------------------------------ | -------------------------------------------- |
-| [docs/spec.openapi.yaml](docs/spec.openapi.yaml) | OpenAPI specification for this microservice. |
+| File                                                         | Description                                  |
+| ------------------------------------------------------------ | -------------------------------------------- |
+| [docs/spec.openapi.yaml](docs/spec.openapi.yaml)             | OpenAPI specification for this microservice. |
+| [CONTRIBUTING.md](CONTRIBUTING.md)                           | Contribution manual.                         |
+| [CICD.md](https://github.com/hidromatologia-v2/docs/blob/main/CICD.md) | CI/CD documentation.                         |
 
 ## Installation
 
